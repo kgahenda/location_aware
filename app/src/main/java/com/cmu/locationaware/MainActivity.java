@@ -27,8 +27,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener
 {
     Button mapMeBtn;
     Button textMeBtn;
-    TextView latitude;
-    TextView longitude;
+    LatLonFragment fragment;
     LocationManager locationManager;
     Location currentLocation; // To store the latest location
 
@@ -44,11 +43,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener
         // Initialize UI elements
         mapMeBtn = findViewById(R.id.mapMe); // Ensure IDs match your XML
         textMeBtn = findViewById(R.id.textMe);
-        latitude = findViewById(R.id.latitude);
-        longitude = findViewById(R.id.longitude);
 
         // Set up location manager
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        fragment = new LatLonFragment();
+        getSupportFragmentManager().beginTransaction()
+           .replace(R.id.latLongFragment, fragment)
+           .commit();
 
         // Check and request location permission
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
@@ -57,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener
         }
         else
         {
-            // Permission already granted, start location updates
             startLocationUpdates();
         }
 
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener
             public void onClick(View v)
             {
                 if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.SEND_SMS) ==
-                PackageManager.PERMISSION_DENIED)
+                PackageManager.PERMISSION_GRANTED)
                 {
                     sendSMS();
                 }
@@ -126,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener
     {
         Toast.makeText(this, "Just triggered the send sms thing!", Toast.LENGTH_SHORT).show();
         String phone = "+250782018008";
-        String message = "Hi, you current location is latitude: " + latitude + " longitude: " + longitude;
+        String message = "Hi, your current location is latitude: " + currentLocation.getLatitude() + " longitude: " + currentLocation.getLongitude();
 
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(phone, null, message, null, null);
@@ -149,10 +150,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener
                 lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             }
 
-            if (lastKnownLocation != null) {
+            if (lastKnownLocation != null)
+            {
                 currentLocation = lastKnownLocation;
-                latitude.setText("Lat: " + lastKnownLocation.getLatitude());
-                longitude.setText("Long: " + lastKnownLocation.getLongitude());
+                fragment.updateLocation(currentLocation.getLatitude(), currentLocation.getLongitude());
             }
         }
     }
@@ -177,10 +178,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onLocationChanged(@NonNull Location location)
     {
-        currentLocation = location; // Store the latest location
-        latitude.setText("Lat: " + location.getLatitude());
-        longitude.setText("Long: " + location.getLongitude());
-        // Optional: Remove this Toast for production, useful for debugging
+        currentLocation = location;
+        fragment.updateLocation(currentLocation.getLatitude(), currentLocation.getLongitude());
         Toast.makeText(this, "Location updated", Toast.LENGTH_SHORT).show();
     }
 

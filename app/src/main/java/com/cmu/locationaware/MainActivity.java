@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -183,9 +182,9 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void sendSMS() {
         try {
-            String phone = "+250782018008";
+            String phone = "+250795002971";
             // Validate phone number
-            if (phone == null || !phone.matches("\\+\\d{10,15}")) {
+            if (!phone.matches("\\+\\d{10,15}")) {
                 throw new IllegalArgumentException("Invalid phone number format. Use E.164 format (e.g., +1234567890)");
             }
 
